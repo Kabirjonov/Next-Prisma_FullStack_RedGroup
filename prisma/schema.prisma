@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+model Episode {
+  id String @id @default(cuid())
+
+  title  String
+  number Int
+  slug   String
+
+  durationSec  Int    @map("duration_sec")
+  thumbnailUrl String @map("thumbnail_url")
+  videoUrl     String @map("video_url")
+
+  seriesId String @map("series_id")
+  series   Series @relation(fields: [seriesId], references: [id])
+
+  createAt DateTime @default(now()) @map("created_at")
+  updateAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([seriesId,number])
+  @@map("episodes")
+  }
+
+  model Genre {
+  id     String   @id @default(cuid())
+  name   String
+  slug   String   @unique
+  series Series[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("genres")
+}
+
+
+model Series {
+  id          String  @id @default(cuid())
+  title       String
+  description String
+  year        Int?
+
+  imageUrl    String @map("image_url")
+  posterUrl String @map("poster_url")
+
+  ratingAgo      String?
+  slug        String  @unique
+  genres      Genre[]
+  episodes  Episode[]
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@map("series")
+}
+
+
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String?
+}
